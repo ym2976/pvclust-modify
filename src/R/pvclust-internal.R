@@ -223,7 +223,11 @@ pvclust.node <- function(x, r, ...)
 boot.hclust <- function(r, data, object.hclust, method.dist, use.cor,
                         method.hclust, nboot, store, weight=FALSE, quiet=FALSE)
 { 
-  n     <- ncol(data)
+  if(nrow(data)>10){
+    n<-nrow(data)
+  }else{
+    n <- 6
+  }
   size  <- round(n*r, digits=0)
   if(size == 0)
     stop("invalid scale parameter(r)")
@@ -246,10 +250,14 @@ boot.hclust <- function(r, data, object.hclust, method.dist, use.cor,
       suppressWarnings(distance <- distw.pvclust(data,w1,method=method.dist,use.cor=use.cor))
     } else {
       smpl <- sample(1:n, size, replace=TRUE)
+      if(nrow(data)<10){
+       smpl <- c(smpl, c(7, 8, 9))
+    }
+      
       if(is.function(method.dist)) {
-        suppressWarnings(distance  <- method.dist(data[,smpl]))
+        suppressWarnings(distance  <- method.dist(data[smpl,]))
       } else {
-        suppressWarnings(distance  <- dist.pvclust(data[,smpl],method=method.dist,use.cor=use.cor))
+        suppressWarnings(distance  <- dist.pvclust(data[smpl,],method=method.dist,use.cor=use.cor))
       }
     }
     if(all(is.finite(distance))) { # check if distance is valid
